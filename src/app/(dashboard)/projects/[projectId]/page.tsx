@@ -19,22 +19,11 @@ import { use } from "react";
 export default async function ProjectDocumentsPage({
   params,
 }: PageProps<"/projects/[projectId]">) {
-  const { projectId } = await params;
-  const project = await getProjectById(projectId);
-  if (project == null) return notFound();
+  const { projectId } = await params
+  const project = await getProjectById(projectId)
+  if (project == null) return notFound()
 
-  // PERMISSION:
-  const user = await getCurrentUser();
-  if (
-    user == null ||
-    (user.role !== "admin" &&
-      project.department != null && // false for null or undefined
-      user.department !== project.department)
-  ) {
-    return redirect("/");
-  }
-
-  const documents = await getProjectDocuments(projectId);
+  const documents = await getProjectDocuments(projectId)
 
   return (
     <div className="space-y-6">
