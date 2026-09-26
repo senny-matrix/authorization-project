@@ -25,6 +25,11 @@ export async function updateDocument(
   data: Partial<DocumentInsertData>,
 ) {
   // PERMISSION:
+  const user = await getCurrentUser()
+  if (user == null || user.role === "viewer") {
+    throw new AuthorizationError()
+  }
+
   await db
     .update(DocumentTable)
     .set(data)

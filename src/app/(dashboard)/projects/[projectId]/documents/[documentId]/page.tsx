@@ -59,21 +59,27 @@ const project = await getProjectById(projectId)
         </div>
         <div className="flex gap-2">
           {/* PERMISSION: */}
-          <Button variant="outline" asChild>
-            <Link href={`/projects/${projectId}/documents/${documentId}/edit`}>
-              <PencilIcon className="size-4 mr-2" />
-              Edit
-            </Link>
-          </Button>
+          {user.role !== "viewer" && (
+            <Button variant="outline" asChild>
+              <Link
+                href={`/projects/${projectId}/documents/${documentId}/edit`}
+              >
+                <PencilIcon className="size-4 mr-2" />
+                Edit
+              </Link>
+            </Button>
+          )}
           {/* PERMISSION: */}
-          <ActionButton
-            variant="destructive"
-            requireAreYouSure
-            areYouSureDescription="This will permanently delete this document. This action cannot be undone."
-            action={deleteDocumentAction.bind(null, documentId, projectId)}
-          >
-            Delete
-          </ActionButton>
+          {user.role === "admin" && (
+            <ActionButton
+              variant="destructive"
+              requireAreYouSure
+              areYouSureDescription="This will permanently delete this document. This action cannot be undone."
+              action={deleteDocumentAction.bind(null, documentId, projectId)}
+            >
+              Delete
+            </ActionButton>
+          )}
         </div>
       </div>
 

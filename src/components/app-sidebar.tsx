@@ -16,12 +16,14 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Project } from "@/drizzle/schema/project"
+import { UserRole } from "@/drizzle/schema/user"
 
 type AppSidebarProps = {
   projects: Pick<Project, "id" | "name" | "department">[]
+  userRole: UserRole
 }
 
-export function AppSidebar({ projects }: AppSidebarProps) {
+export function AppSidebar({ projects, userRole }: AppSidebarProps) {
   const pathname = usePathname()
 
   return (
@@ -31,12 +33,14 @@ export function AppSidebar({ projects }: AppSidebarProps) {
           <SidebarGroupLabel className="flex items-center justify-between">
             Projects
             {/* PERMISSION: */}
-            <Button variant="ghost" size="icon-xs" asChild>
-              <Link href="/projects/new">
-                <PlusIcon className="size-4" />
-                <span className="sr-only">New Project</span>
-              </Link>
-            </Button>
+            {userRole === "admin" && (
+              <Button variant="ghost" size="icon-xs" asChild>
+                <Link href="/projects/new">
+                  <PlusIcon className="size-4" />
+                  <span className="sr-only">New Project</span>
+                </Link>
+              </Button>
+            )}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
