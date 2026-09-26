@@ -1,37 +1,26 @@
-"use server"
+"use server";
 
-import { getCurrentUser } from "@/lib/session"
-import { redirect } from "next/navigation"
-import { documentSchema, type DocumentFormValues } from "../schemas/documents"
+import { redirect } from "next/navigation";
+import { type DocumentFormValues } from "../schemas/documents";
+import { tryFn } from "@/lib/helpers";
 import {
-  createDocument,
-  deleteDocument,
-  updateDocument,
-} from "@/dal/documents/mutations"
-import { tryFn } from "@/lib/helpers"
+  createDocumentService,
+  deleteDocumentService,
+  updateDocumentService,
+} from "@/services/documents";
 
 export async function createDocumentAction(
   projectId: string,
   data: DocumentFormValues,
 ) {
-  const user = await getCurrentUser()
-  if (user == null) return { message: "Not authenticated" }
-
-  const result = documentSchema.safeParse(data)
-  if (!result.success) return { message: "Invalid data" }
-
   const [error, document] = await tryFn(() =>
-    createDocument({
-      ...result.data,
-      projectId,
-      creatorId: user.id,
-      lastEditedById: user.id,
-    }),
-  )
+    createDocumentService(projectId, data),
+  );
 
-  if (error) return error
+  if (error) return error;
+  if (!("id" in document)) return document;
 
-  redirect(`/projects/${projectId}/documents/${document.id}`)
+  redirect(`/projects/${projectId}/documents/${document.id}`);
 }
 
 export async function updateDocumentAction(
@@ -39,31 +28,20 @@ export async function updateDocumentAction(
   projectId: string,
   data: DocumentFormValues,
 ) {
-  const user = await getCurrentUser()
-  if (user == null) return { message: "Not authenticated" }
+  const [error] = await tryFn(() => updateDocumentService(documentId, data));
 
-  const result = documentSchema.safeParse(data)
-  if (!result.success) return { message: "Invalid data" }
+  if (error) return error;
 
-  const [error] = await tryFn(() =>
-    updateDocument(documentId, {
-      ...result.data,
-      lastEditedById: user.id,
-    }),
-  )
-
-  if (error) return error
-
-  redirect(`/projects/${projectId}/documents/${documentId}`)
+  redirect(`/projects/${projectId}/documents/${documentId}`);
 }
 
 export async function deleteDocumentAction(
   documentId: string,
   projectId: string,
 ) {
-  const [error] = await tryFn(() => deleteDocument(documentId))
+  const [error] = await tryFn(() => deleteDocumentService(documentId));
 
-  if (error) return error
+  if (error) return error;
 
-  redirect(`/projects/${projectId}`)
+  redirect(`/projects/${projectId}`);
 }
