@@ -16,6 +16,9 @@ export async function createDocumentAction(
 ) {
   const user = await getCurrentUser()
   if (user == null) return { message: "Not authenticated" }
+  if (user.role === "viewer" || user.role === "editor") {
+    return { message: "Missing Permission" }
+  }
 
   const result = documentSchema.safeParse(data)
   if (!result.success) return { message: "Invalid data" }
@@ -41,6 +44,7 @@ export async function updateDocumentAction(
 ) {
   const user = await getCurrentUser()
   if (user == null) return { message: "Not authenticated" }
+  if (user.role === "viewer") return { message: "Missing Permission" }
 
   const result = documentSchema.safeParse(data)
   if (!result.success) return { message: "Invalid data" }
@@ -61,6 +65,10 @@ export async function deleteDocumentAction(
   documentId: string,
   projectId: string,
 ) {
+  const user = await getCurrentUser()
+  if (user == null) return { message: "Not authenticated" }
+  if (user.role !== "admin") return { message: "Missing Permission" }
+
   const [error] = await tryFn(() => deleteDocument(documentId))
 
   if (error) return error

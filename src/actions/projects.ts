@@ -14,6 +14,7 @@ import { revalidatePath } from "next/cache"
 export async function createProjectAction(data: ProjectFormValues) {
   const user = await getCurrentUser()
   if (user == null) return { message: "Not authenticated" }
+  if (user.role !== "admin") return { message: "Missing Permission" }
 
   const result = projectSchema.safeParse(data)
   if (!result.success) return { message: "Invalid data" }
@@ -35,6 +36,10 @@ export async function updateProjectAction(
   projectId: string,
   data: ProjectFormValues,
 ) {
+  const user = await getCurrentUser()
+  if (user == null) return { message: "Not authenticated" }
+  if (user.role !== "admin") return { message: "Missing Permission" }
+
   const result = projectSchema.safeParse(data)
   if (!result.success) return { message: "Invalid data" }
 
@@ -46,6 +51,10 @@ export async function updateProjectAction(
 }
 
 export async function deleteProjectAction(projectId: string) {
+  const user = await getCurrentUser()
+  if (user == null) return { message: "Not authenticated" }
+  if (user.role !== "admin") return { message: "Missing Permission" }
+
   const [error] = await tryFn(() => deleteProject(projectId))
   if (error) return error
 

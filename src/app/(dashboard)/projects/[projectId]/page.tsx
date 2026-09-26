@@ -1,20 +1,19 @@
-import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import Link from "next/link"
+import { notFound, redirect } from "next/navigation"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { PlusIcon, LockIcon, FileTextIcon } from "lucide-react";
-import { getStatusBadgeVariant } from "@/lib/helpers";
-import { getProjectById } from "@/dal/projects/queries";
-import { getProjectDocuments } from "@/dal/documents/queries";
-import { getCurrentUser } from "@/lib/session";
-import { use } from "react";
+} from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { PlusIcon, LockIcon, FileTextIcon } from "lucide-react"
+import { getStatusBadgeVariant } from "@/lib/helpers"
+import { getProjectById } from "@/dal/projects/queries"
+import { getProjectDocuments } from "@/dal/documents/queries"
+import { getCurrentUser } from "@/lib/session"
 
 export default async function ProjectDocumentsPage({
   params,
@@ -22,6 +21,17 @@ export default async function ProjectDocumentsPage({
   const { projectId } = await params
   const project = await getProjectById(projectId)
   if (project == null) return notFound()
+
+  // PERMISSION:
+  const user = await getCurrentUser()
+  if (
+    user == null ||
+    (user.role !== "admin" &&
+      project.department != null &&
+      user.department !== project.department)
+  ) {
+    return redirect("/")
+  }
 
   const documents = await getProjectDocuments(projectId)
 
@@ -36,17 +46,20 @@ export default async function ProjectDocumentsPage({
         </div>
         <div className="flex gap-2">
           {/* PERMISSION: */}
-          <Button asChild variant="outline">
-            <Link href={`/projects/${projectId}/edit`}>Edit Project</Link>
-          </Button>
+          {user.role === "admin" && (
+            <Button asChild variant="outline">
+              <Link href={`/projects/${projectId}/edit`}>Edit Project</Link>
+            </Button>
+          )}
           {/* PERMISSION: */}
-          {/* FIX: Missing admin role check */}
-          <Button asChild>
-            <Link href={`/projects/${projectId}/documents/new`}>
-              <PlusIcon className="size-4" />
-              New Document
-            </Link>
-          </Button>
+          {(user.role === "author" || user.role === "admin") && (
+            <Button asChild>
+              <Link href={`/projects/${projectId}/documents/new`}>
+                <PlusIcon className="size-4" />
+                New Document
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -58,18 +71,20 @@ export default async function ProjectDocumentsPage({
             <p className="text-muted-foreground mb-4">
               Create your first document in this project.
             </p>
-            {/* FIX: Missing permission check */}
-            <Button asChild>
-              <Link href={`/projects/${projectId}/documents/new`}>
-                <PlusIcon className="size-4 mr-2" />
-                New Document
-              </Link>
-            </Button>
+            {/* PERMISSION: */}
+            {(user.role === "author" || user.role === "admin") && (
+              <Button asChild>
+                <Link href={`/projects/${projectId}/documents/new`}>
+                  <PlusIcon className="size-4 mr-2" />
+                  New Document
+                </Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {documents.map((doc) => (
+          {documents.map(doc => (
             <Link
               key={doc.id}
               href={`/projects/${projectId}/documents/${doc.id}`}
@@ -96,5 +111,5 @@ export default async function ProjectDocumentsPage({
         </div>
       )}
     </div>
-  );
+  )
 }
