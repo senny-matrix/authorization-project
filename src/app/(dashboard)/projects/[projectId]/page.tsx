@@ -51,13 +51,14 @@ export default async function ProjectDocumentsPage({
             <Link href={`/projects/${projectId}/edit`}>Edit Project</Link>
           </Button>
           {/* PERMISSION: */}
-          {/* FIX: Missing admin role check */}
-          <Button asChild>
-            <Link href={`/projects/${projectId}/documents/new`}>
-              <PlusIcon className="size-4" />
-              New Document
-            </Link>
-          </Button>
+          {(user?.role === "author" || user?.role === "admin") && (
+            <Button asChild>
+              <Link href={`/projects/${projectId}/documents/new`}>
+                <PlusIcon className="size-4" />
+                New Document
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -69,13 +70,15 @@ export default async function ProjectDocumentsPage({
             <p className="text-muted-foreground mb-4">
               Create your first document in this project.
             </p>
-            {/* FIX: Missing permission check */}
-            <Button asChild>
-              <Link href={`/projects/${projectId}/documents/new`}>
-                <PlusIcon className="size-4 mr-2" />
-                New Document
-              </Link>
-            </Button>
+            {/* PERMISSION: */}
+            {(user?.role === "author" || user?.role === "admin") && (
+              <Button asChild>
+                <Link href={`/projects/${projectId}/documents/new`}>
+                  <PlusIcon className="size-4 mr-2" />
+                  New Document
+                </Link>
+              </Button>
+            )}
           </CardContent>
         </Card>
       ) : (
