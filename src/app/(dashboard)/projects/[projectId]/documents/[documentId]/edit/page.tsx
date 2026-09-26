@@ -21,10 +21,10 @@ export default async function EditDocumentPage({
   if (
     user == null ||
     (user.role !== "admin" &&
-    project.department == null &&
-    project.department !== user.department)
-  ){
-      redirect(`/`);
+      project.department != null &&
+      user.department !== project.department)
+  ) {
+    return redirect(`/`);
   }
 
   // PERMISSION:
