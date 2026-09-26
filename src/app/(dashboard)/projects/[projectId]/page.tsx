@@ -52,7 +52,7 @@ export default async function ProjectDocumentsPage({
             </Button>
           )}
           {/* PERMISSION: */}
-          {(user.role === "author" || user.role === "admin") && (
+          {(user?.role === "author" || user?.role === "admin") && (
             <Button asChild>
               <Link href={`/projects/${projectId}/documents/new`}>
                 <PlusIcon className="size-4" />
@@ -72,7 +72,7 @@ export default async function ProjectDocumentsPage({
               Create your first document in this project.
             </p>
             {/* PERMISSION: */}
-            {(user.role === "author" || user.role === "admin") && (
+            {(user?.role === "author" || user?.role === "admin") && (
               <Button asChild>
                 <Link href={`/projects/${projectId}/documents/new`}>
                   <PlusIcon className="size-4 mr-2" />

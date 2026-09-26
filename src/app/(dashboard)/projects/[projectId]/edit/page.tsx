@@ -1,32 +1,33 @@
-import Link from "next/link"
-import { notFound, redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { ArrowLeftIcon } from "lucide-react"
-import { ActionButton } from "@/components/ui/action-button"
-import { deleteProjectAction } from "@/actions/projects"
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { ArrowLeftIcon } from "lucide-react";
+import { ActionButton } from "@/components/ui/action-button";
+import { deleteProjectAction } from "@/actions/projects";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { getProjectById } from "@/dal/projects/queries"
-import { ProjectForm } from "@/components/project-form"
-import { getCurrentUser } from "@/lib/session"
+} from "@/components/ui/card";
+import { getProjectById } from "@/dal/projects/queries";
+import { ProjectForm } from "@/components/project-form";
+import { getCurrentUser } from "@/lib/session";
 
 export default async function EditProjectPage({
   params,
 }: PageProps<"/projects/[projectId]/edit">) {
-  const { projectId } = await params
+  const { projectId } = await params;
 
-  const project = await getProjectById(projectId)
-  if (project == null) return notFound()
+  const project = await getProjectById(projectId);
+  if (project == null) return notFound();
+
 
   // PERMISSION:
-  const user = await getCurrentUser()
+  const user = await getCurrentUser();
   if (!user || user.role !== "admin") {
-    return redirect(`/`)
+    return redirect(`/`);
   }
 
   return (
@@ -49,25 +50,25 @@ export default async function EditProjectPage({
 
         {/* PERMISSION: */}
         {user?.role === "admin" && (
-          <Card className="border-destructive">
-            <CardHeader>
-              <CardTitle className="text-destructive">Danger Zone</CardTitle>
-              <CardDescription>
-                Permanently delete this project and all its documents.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ActionButton
-                variant="destructive"
-                requireAreYouSure
-                action={deleteProjectAction.bind(null, projectId)}
-              >
-                Delete Project
-              </ActionButton>
-            </CardContent>
-          </Card>
+        <Card className="border-destructive">
+          <CardHeader>
+            <CardTitle className="text-destructive">Danger Zone</CardTitle>
+            <CardDescription>
+              Permanently delete this project and all its documents.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ActionButton
+              variant="destructive"
+              requireAreYouSure
+              action={deleteProjectAction.bind(null, projectId)}
+            >
+              Delete Project
+            </ActionButton>
+          </CardContent>
+        </Card>
         )}
       </div>
     </div>
-  )
+  );
 }

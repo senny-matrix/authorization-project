@@ -17,7 +17,6 @@ export default async function EditDocumentPage({
 
   const project = await getProjectById(projectId)
   if (project == null) return notFound()
-
   const user = await getCurrentUser()
   if (
     user == null ||
@@ -25,12 +24,12 @@ export default async function EditDocumentPage({
       project.department != null &&
       user.department !== project.department)
   ) {
-    return redirect(`/`)
+    return redirect(`/`);
   }
 
   // PERMISSION:
-  if (user.role === "viewer") {
-    return redirect(`/`)
+  if (user.role === "viewer"){
+    return redirect(`/`);
   }
 
   return (

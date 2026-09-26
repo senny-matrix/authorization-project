@@ -17,7 +17,7 @@ export default async function DocumentDetailPage({
   const { projectId, documentId } = await params
 
   // PERMISSION:
-  const project = await getProjectById(projectId)
+const project = await getProjectById(projectId)
   if (project == null) return notFound()
 
   const user = await getCurrentUser()
@@ -25,7 +25,7 @@ export default async function DocumentDetailPage({
   if (
     user == null ||
     (user.role !== "admin" &&
-      project.department != null &&
+      project.department != null && // false for null or undefined
       user.department !== project.department)
   ) {
     return redirect("/")
