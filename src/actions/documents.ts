@@ -28,7 +28,9 @@ export async function updateDocumentAction(
   projectId: string,
   data: DocumentFormValues,
 ) {
-  const [error] = await tryFn(() => updateDocumentService(documentId, data));
+  const [error] = await tryFn(() =>
+    updateDocumentService(documentId, projectId, data),
+  );
 
   if (error) return error;
 

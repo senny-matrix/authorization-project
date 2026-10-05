@@ -1,54 +1,42 @@
-"use server"
+'use server';
 
-import { getCurrentUser } from "@/lib/session"
-import { redirect } from "next/navigation"
-import { projectSchema, type ProjectFormValues } from "../schemas/projects"
+import { redirect } from 'next/navigation';
+import { projectSchema, type ProjectFormValues } from '../schemas/projects';
+import { tryFn } from '@/lib/helpers';
+import { revalidatePath } from 'next/cache';
 import {
-  createProject,
-  deleteProject,
-  updateProject,
-} from "@/dal/projects/mutations"
-import { tryFn } from "@/lib/helpers"
-import { revalidatePath } from "next/cache"
+  createProjectService,
+  deleteProjectService,
+  updateProjectService,
+} from '@/services/projects';
 
 export async function createProjectAction(data: ProjectFormValues) {
-  const user = await getCurrentUser()
-  if (user == null) return { message: "Not authenticated" }
+  const [error, project] = await tryFn(() => createProjectService(data));
+  if (error) return error;
+  if (!('id' in project)) return project;
 
-  const result = projectSchema.safeParse(data)
-  if (!result.success) return { message: "Invalid data" }
-
-  const [error, project] = await tryFn(() =>
-    createProject({
-      ...result.data,
-      ownerId: user.id,
-      department: result.data.department || null,
-    }),
-  )
-  if (error) return error
-
-  revalidatePath(`/projects/${project.id}`)
-  return redirect(`/projects/${project.id}`)
+  revalidatePath(`/projects/${project.id}`);
+  return redirect(`/projects/${project.id}`);
 }
 
 export async function updateProjectAction(
   projectId: string,
   data: ProjectFormValues,
 ) {
-  const result = projectSchema.safeParse(data)
-  if (!result.success) return { message: "Invalid data" }
+  const result = projectSchema.safeParse(data);
+  if (!result.success) return { message: 'Invalid data' };
 
-  const [error] = await tryFn(() => updateProject(projectId, result.data))
-  if (error) return error
+  const [error] = await tryFn(() => updateProjectService(projectId, data));
+  if (error) return error;
 
-  revalidatePath(`/projects/${projectId}`)
-  return redirect(`/projects/${projectId}`)
+  revalidatePath(`/projects/${projectId}`);
+  return redirect(`/projects/${projectId}`);
 }
 
 export async function deleteProjectAction(projectId: string) {
-  const [error] = await tryFn(() => deleteProject(projectId))
-  if (error) return error
+  const [error] = await tryFn(() => deleteProjectService(projectId));
+  if (error) return error;
 
-  revalidatePath(`/projects/${projectId}`)
-  redirect("/projects")
+  revalidatePath(`/projects/${projectId}`);
+  redirect('/projects');
 }

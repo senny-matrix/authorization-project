@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { notFound, redirect } from "next/navigation"
+import { notFound } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -7,9 +7,8 @@ import { ActionButton } from "@/components/ui/action-button"
 import { deleteDocumentAction } from "@/actions/documents"
 import { ArrowLeftIcon, LockIcon, PencilIcon } from "lucide-react"
 import { getStatusBadgeVariant } from "@/lib/helpers"
-import { getDocumentWithUserInfo } from "@/dal/documents/queries"
-import { getCurrentUser } from "@/lib/session"
-import { getProjectById } from "@/dal/projects/queries"
+import { getDocumentWithUserInfoService } from "@/services/documents"
+import { getProjectByIdService } from "@/services/projects"
 
 export default async function DocumentDetailPage({
   params,
@@ -17,21 +16,11 @@ export default async function DocumentDetailPage({
   const { projectId, documentId } = await params
 
   // PERMISSION:
-const project = await getProjectById(projectId)
+  // Resolves to null when the current user may not access this project.
+  const project = await getProjectByIdService(projectId)
   if (project == null) return notFound()
 
-  const user = await getCurrentUser()
-
-  if (
-    user == null ||
-    (user.role !== "admin" &&
-      project.department != null && // false for null or undefined
-      user.department !== project.department)
-  ) {
-    return redirect("/")
-  }
-
-  const document = await getDocumentWithUserInfo(documentId)
+  const document = await getDocumentWithUserInfoService(documentId)
   if (document == null) return notFound()
 
   return (

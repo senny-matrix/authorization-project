@@ -1,9 +1,9 @@
 import {
   createDocument,
-  deleteDocument,
   updateDocument,
+  deleteDocument,
 } from "@/dal/documents/mutations";
-import { getDocumentById } from "@/dal/documents/queries";
+import { getDocumentById, getDocumentWithUserInfo, getProjectDocuments } from "@/dal/documents/queries";
 import { getProjectById } from "@/dal/projects/queries";
 import { AuthorizationError } from "@/lib/errors";
 import { getCurrentUser } from "@/lib/session";
@@ -18,6 +18,7 @@ export async function createDocumentService(
 
   // STEP 1 | Authorization - can they perform this action?
   // Only admins and authors may create documents.
+  // PERMISSION:
   if (user.role !== "admin" && user.role !== "author") {
     throw new AuthorizationError(
       "User does not have permission to create a document",
@@ -41,10 +42,11 @@ export async function createDocumentService(
 
 export async function updateDocumentService(
   documentId: string,
+  projectId: string,
   data: DocumentFormValues,
 ) {
   const user = await getCurrentUser();
-  if (user === null) return { message: "User not authenticated", status: 401 };
+  if (user === null) throw new Error("User not authenticated");
 
   // STEP 1 | Authorization - can they perform this action?
   // Viewers are read-only.
@@ -101,4 +103,28 @@ export async function deleteDocumentService(documentId: string) {
 
   // STEP 2 | Delete the document
   return await deleteDocument(documentId);
+}
+
+export async function getDocumentByIdService(id: string) {
+  // PERMISSION:
+  const user = await getCurrentUser();
+  if (!user) throw new Error("User not authenticated");
+
+  return getDocumentById(id);
+}
+
+export async function getProjectDocumentsService(projectId: string) {
+  // PERMISSION:
+  const user = await getCurrentUser();
+  if (!user) throw new Error("User not authenticated");
+
+  return getProjectDocuments(projectId);
+}
+
+export async function getDocumentWithUserInfoService(id: string) {
+  // PERMISSION:
+  const user = await getCurrentUser();
+  if (!user) throw new Error("User not authenticated");
+
+  return getDocumentWithUserInfo(id);
 }
