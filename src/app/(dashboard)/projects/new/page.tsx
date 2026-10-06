@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 export default async function NewProjectPage() {
   // PERMISSION:
   const user = await getCurrentUser();
-  if (!user || user.role !== "admin") {
+  if (user == null || user.role !== "admin") {
     return redirect(`/`);
   }
 

@@ -12,7 +12,7 @@ import { eq, isNull, or } from "drizzle-orm";
 
 export async function createProjectService(data: ProjectFormValues) {
   const user = await getCurrentUser();
-  if (user === null)
+  if (user == null)
     throw new Error("Unauthenticated user cannot create a project");
 
   // STEP 1 | Authorization - can they perform this action?
@@ -43,7 +43,7 @@ export async function updateProjectService(
   data: ProjectFormValues,
 ) {
   const user = await getCurrentUser();
-  if (user === null)
+  if (user == null)
     throw new Error("Unauthenticated user cannot update a project");
 
   // STEP 1 | Authorization - can they perform this action?
@@ -67,7 +67,7 @@ export async function updateProjectService(
 
 export async function deleteProjectService(projectId: string) {
   const user = await getCurrentUser();
-  if (user === null)
+  if (user == null)
     throw new Error("Unauthenticated user cannot delete a project");
 
   // STEP 1 | Authorization - can they perform this action?
@@ -85,7 +85,7 @@ export async function deleteProjectService(projectId: string) {
 export async function getAllProjectsService({ ordered } = { ordered: false }) {
   // PERMISSION:
   const user = await getCurrentUser();
-  if (!user) throw new AuthorizationError("User not authenticated");
+  if (user == null) throw new AuthorizationError("User not authenticated");
 
   return getAllProjects({ ordered }, userWhereClause(user));
 }
@@ -93,7 +93,7 @@ export async function getAllProjectsService({ ordered } = { ordered: false }) {
 export async function getProjectByIdService(id: string) {
   // PERMISSION:
   const user = await getCurrentUser();
-  if (!user) throw new AuthorizationError("User not authenticated");
+  if (user == null) throw new AuthorizationError("User not authenticated");
 
   const project = await getProjectById(id);
   if (!project) return null;

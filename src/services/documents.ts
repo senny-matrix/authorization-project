@@ -14,7 +14,7 @@ export async function createDocumentService(
   data: DocumentFormValues,
 ) {
   const user = await getCurrentUser();
-  if (user === null) return { message: "User not authenticated", status: 401 };
+  if (user == null) return { message: "User not authenticated", status: 401 };
 
   // STEP 1 | Authorization - can they perform this action?
   // Only admins and authors may create documents.
@@ -46,7 +46,7 @@ export async function updateDocumentService(
   data: DocumentFormValues,
 ) {
   const user = await getCurrentUser();
-  if (user === null) throw new Error("User not authenticated");
+  if (user == null) throw new Error("User not authenticated");
 
   // STEP 1 | Authorization - can they perform this action?
   // Viewers are read-only.
@@ -91,7 +91,7 @@ export async function updateDocumentService(
 
 export async function deleteDocumentService(documentId: string) {
   const user = await getCurrentUser();
-  if (user === null) return { message: "User not authenticated", status: 401 };
+  if (user == null) return { message: "User not authenticated", status: 401 };
 
   // STEP 1 | Authorization - can they perform this action?
   // Deleting is destructive, so it is restricted to admins.
@@ -108,7 +108,7 @@ export async function deleteDocumentService(documentId: string) {
 export async function getDocumentByIdService(id: string) {
   // PERMISSION:
   const user = await getCurrentUser();
-  if (!user) throw new Error("User not authenticated");
+  if (user == null) throw new Error("User not authenticated");
 
   return getDocumentById(id);
 }
@@ -116,7 +116,7 @@ export async function getDocumentByIdService(id: string) {
 export async function getProjectDocumentsService(projectId: string) {
   // PERMISSION:
   const user = await getCurrentUser();
-  if (!user) throw new Error("User not authenticated");
+  if (user == null) throw new Error("User not authenticated");
 
   return getProjectDocuments(projectId);
 }
@@ -124,7 +124,7 @@ export async function getProjectDocumentsService(projectId: string) {
 export async function getDocumentWithUserInfoService(id: string) {
   // PERMISSION:
   const user = await getCurrentUser();
-  if (!user) throw new Error("User not authenticated");
+  if (user == null) throw new Error("User not authenticated");
 
   return getDocumentWithUserInfo(id);
 }
