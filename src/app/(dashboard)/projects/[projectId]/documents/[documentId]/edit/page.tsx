@@ -1,26 +1,26 @@
-import Link from "next/link"
-import { notFound, redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { ArrowLeftIcon } from "lucide-react"
-import { DocumentForm } from "@/components/document-form"
-import { getCurrentUser } from "@/lib/session"
-import { getDocumentByIdService } from "@/services/documents"
-import { getProjectByIdService } from "@/services/projects"
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { ArrowLeftIcon } from "lucide-react";
+import { DocumentForm } from "@/components/document-form";
+import { getCurrentUser } from "@/lib/session";
+import { getDocumentByIdService } from "@/services/documents";
+import { getProjectByIdService } from "@/services/projects";
 
 export default async function EditDocumentPage({
   params,
 }: PageProps<"/projects/[projectId]/documents/[documentId]/edit">) {
-  const { projectId, documentId } = await params
+  const { projectId, documentId } = await params;
 
-  const document = await getDocumentByIdService(documentId)
-  if (document == null) return notFound()
+  const document = await getDocumentByIdService(documentId);
+  if (document == null) return notFound();
 
-  const project = await getProjectByIdService(projectId)
-  if (project == null) return notFound()
-  const user = await getCurrentUser()
+  const project = await getProjectByIdService(projectId);
+  if (project == null) return notFound();
+  const user = await getCurrentUser();
 
   // PERMISSION:
-  if (user == null || user.role === "viewer"){
+  if (user == null || user.role === "viewer") {
     return redirect(`/`);
   }
 
@@ -43,5 +43,5 @@ export default async function EditDocumentPage({
         <DocumentForm document={document} projectId={projectId} />
       </div>
     </div>
-  )
+  );
 }
