@@ -1,13 +1,18 @@
 import {
   createDocument,
-  updateDocument,
   deleteDocument,
+  updateDocument,
 } from "@/dal/documents/mutations";
 import { getDocumentById, getDocumentWithUserInfo, getProjectDocuments } from "@/dal/documents/queries";
 import { getProjectById } from "@/dal/projects/queries";
+
 import { AuthorizationError } from "@/lib/errors";
 import { getCurrentUser } from "@/lib/session";
-import { DocumentFormValues, documentSchema } from "@/schemas/documents";
+
+import { can } from "@/permissions/rbac";
+
+import { documentSchema } from "@/schemas/documents";
+import type { DocumentFormValues } from "@/schemas/documents";
 
 export async function createDocumentService(
   projectId: string,
@@ -19,7 +24,7 @@ export async function createDocumentService(
   // STEP 1 | Authorization - can they perform this action?
   // Only admins and authors may create documents.
   // PERMISSION:
-  if (user.role !== "admin" && user.role !== "author") {
+  if (!can(user, 'document:create')) {
     throw new AuthorizationError(
       "User does not have permission to create a document",
     );
@@ -50,7 +55,8 @@ export async function updateDocumentService(
 
   // STEP 1 | Authorization - can they perform this action?
   // Viewers are read-only.
-  if (user.role === "viewer") {
+  // PERMISSION:
+  if (!can(user, 'document:update')) {
     throw new AuthorizationError(
       "User does not have permission to update a document",
     );
@@ -95,7 +101,8 @@ export async function deleteDocumentService(documentId: string) {
 
   // STEP 1 | Authorization - can they perform this action?
   // Deleting is destructive, so it is restricted to admins.
-  if (user.role !== "admin") {
+  // PERMISSION:
+  if (!can(user, 'document:delete')) {
     throw new AuthorizationError(
       "User does not have permission to delete a document",
     );
@@ -108,7 +115,12 @@ export async function deleteDocumentService(documentId: string) {
 export async function getDocumentByIdService(id: string) {
   // PERMISSION:
   const user = await getCurrentUser();
-  if (user == null) throw new Error("User not authenticated");
+
+  if (!can(user, "document:read")) {
+    throw new AuthorizationError(
+      "User does not have permission to read this document",
+    );
+  }
 
   return getDocumentById(id);
 }
@@ -116,7 +128,12 @@ export async function getDocumentByIdService(id: string) {
 export async function getProjectDocumentsService(projectId: string) {
   // PERMISSION:
   const user = await getCurrentUser();
-  if (user == null) throw new Error("User not authenticated");
+
+  if (!can(user, "document:read")) {
+    throw new AuthorizationError(
+      "User does not have permission to read this document",
+    );
+  }
 
   return getProjectDocuments(projectId);
 }
@@ -124,7 +141,12 @@ export async function getProjectDocumentsService(projectId: string) {
 export async function getDocumentWithUserInfoService(id: string) {
   // PERMISSION:
   const user = await getCurrentUser();
-  if (user == null) throw new Error("User not authenticated");
+
+  if (!can(user, "document:read")) {
+    throw new AuthorizationError(
+      "User does not have permission to read this document",
+    );
+  }
 
   return getDocumentWithUserInfo(id);
 }

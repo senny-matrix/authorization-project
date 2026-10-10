@@ -7,6 +7,7 @@ import { getAllProjects, getProjectById } from "@/dal/projects/queries";
 import { ProjectTable, User } from "@/drizzle/schema";
 import { AuthorizationError } from "@/lib/errors";
 import { getCurrentUser } from "@/lib/session";
+import { canReadProject } from "@/permissions/projects";
 import { ProjectFormValues, projectSchema } from "@/schemas/projects";
 import { eq, isNull, or } from "drizzle-orm";
 
@@ -101,11 +102,7 @@ export async function getProjectByIdService(id: string) {
   // PERMISSION:
   // Admins see every project. Everyone else may only see projects that are
   // either unassigned or belong to their own department.
-  if (
-    user.role !== "admin" &&
-    project.department !== null &&
-    user.department !== project.department
-  ) {
+  if (!canReadProject(user, project)) {
     return null;
   }
 
