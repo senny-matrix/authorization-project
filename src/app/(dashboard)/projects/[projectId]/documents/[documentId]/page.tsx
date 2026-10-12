@@ -9,6 +9,8 @@ import { ArrowLeftIcon, LockIcon, PencilIcon } from "lucide-react"
 import { getStatusBadgeVariant } from "@/lib/helpers"
 import { getDocumentWithUserInfoService } from "@/services/documents"
 import { getProjectByIdService } from "@/services/projects"
+import { can } from "@/permissions/rbac"
+import { getCurrentUser } from "@/lib/session"
 
 export default async function DocumentDetailPage({
   params,
@@ -22,6 +24,8 @@ export default async function DocumentDetailPage({
 
   const document = await getDocumentWithUserInfoService(documentId)
   if (document == null) return notFound()
+
+  const user = await getCurrentUser();
 
   return (
     <div className="space-y-6">
@@ -48,21 +52,26 @@ export default async function DocumentDetailPage({
         </div>
         <div className="flex gap-2">
           {/* PERMISSION: */}
-          <Button variant="outline" asChild>
-            <Link href={`/projects/${projectId}/documents/${documentId}/edit`}>
-              <PencilIcon className="size-4 mr-2" />
-              Edit
-            </Link>
-          </Button>
+          {can(user, "document:update") && (
+            <Button variant="outline" asChild>
+              <Link href={`/projects/${projectId}/documents/${documentId}/edit`}>
+                <PencilIcon className="size-4 mr-2" />
+                Edit
+              </Link>
+            </Button>
+          )}
+
           {/* PERMISSION: */}
-          <ActionButton
-            variant="destructive"
-            requireAreYouSure
-            areYouSureDescription="This will permanently delete this document. This action cannot be undone."
-            action={deleteDocumentAction.bind(null, documentId, projectId)}
-          >
-            Delete
-          </ActionButton>
+          {can(user, "document:delete") && (
+            <ActionButton
+              variant="destructive"
+              requireAreYouSure
+              areYouSureDescription="This will permanently delete this document. This action cannot be undone."
+              action={deleteDocumentAction.bind(null, documentId, projectId)}
+            >
+              Delete
+            </ActionButton>
+          )}
         </div>
       </div>
 

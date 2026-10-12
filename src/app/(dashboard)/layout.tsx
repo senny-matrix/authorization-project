@@ -1,17 +1,18 @@
 import { redirect } from "next/navigation"
-import { getCurrentUser } from "@/lib/session"
+import { LogOutIcon } from "lucide-react"
+
+import { logout } from "@/actions/auth"
+import { AppSidebar } from "@/components/app-sidebar"
+import { ActionButton } from "@/components/ui/action-button"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 import {
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/app-sidebar"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { LogOutIcon } from "lucide-react"
-import { logout } from "@/actions/auth"
-import { ActionButton } from "@/components/ui/action-button"
 import { getRoleBadgeVariant } from "@/lib/helpers"
+import { getCurrentUser } from "@/lib/session"
 import { getAllProjectsService } from "@/services/projects"
 
 
@@ -23,7 +24,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/">) {
 
   return (
     <SidebarProvider>
-      <AppSidebar projects={projects} />
+      <AppSidebar projects={projects} user={user} />
       <SidebarInset>
         <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="md:-ml-1" />

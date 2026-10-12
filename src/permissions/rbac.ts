@@ -1,6 +1,6 @@
 import { User } from "@/drizzle/schema";
 
-type Permission =
+export type Permission =
   | 'project:create'
   | 'project:update'
   | 'project:read:all'

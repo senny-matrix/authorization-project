@@ -9,6 +9,7 @@ import { getProjectById } from "@/dal/projects/queries";
 import { AuthorizationError } from "@/lib/errors";
 import { getCurrentUser } from "@/lib/session";
 
+import { canReadProject } from "@/permissions/projects";
 import { can } from "@/permissions/rbac";
 
 import { documentSchema } from "@/schemas/documents";
@@ -72,11 +73,7 @@ export async function updateDocumentService(
   const project = await getProjectById(document.projectId);
   if (project == null) throw new Error("Project not found");
 
-  if (
-    user.role !== "admin" &&
-    project.department != null &&
-    user.department !== project.department
-  ) {
+  if (!canReadProject(user, project)) {
     throw new AuthorizationError(
       "User does not have permission to update this document",
     );

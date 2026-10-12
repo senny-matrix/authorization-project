@@ -15,15 +15,17 @@ import {
 } from "@/components/ui/sidebar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Project } from "@/drizzle/schema/project"
+import type { User } from "@/drizzle/schema"
+import type { Project } from "@/drizzle/schema/project"
+import { can } from "@/permissions/rbac"
 
 type AppSidebarProps = {
   projects: Pick<Project, "id" | "name" | "department">[]
+  user: User | null
 }
 
-export function AppSidebar({ projects }: AppSidebarProps) {
+export function AppSidebar({ projects, user }: AppSidebarProps) {
   const pathname = usePathname()
-
   return (
     <Sidebar>
       <SidebarContent>
@@ -31,12 +33,14 @@ export function AppSidebar({ projects }: AppSidebarProps) {
           <SidebarGroupLabel className="flex items-center justify-between">
             Projects
             {/* PERMISSION: */}
-            <Button variant="ghost" size="icon-xs" asChild>
-              <Link href="/projects/new">
-                <PlusIcon className="size-4" />
-                <span className="sr-only">New Project</span>
-              </Link>
-            </Button>
+            {can(user, "project:create") && (
+              <Button variant="ghost" size="icon-xs" asChild>
+                <Link href="/projects/new">
+                  <PlusIcon className="size-4" />
+                  <span className="sr-only">New Project</span>
+                </Link>
+              </Button>
+            )}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

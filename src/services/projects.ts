@@ -8,6 +8,7 @@ import { ProjectTable, User } from "@/drizzle/schema";
 import { AuthorizationError } from "@/lib/errors";
 import { getCurrentUser } from "@/lib/session";
 import { canReadProject } from "@/permissions/projects";
+import { can } from "@/permissions/rbac";
 import { ProjectFormValues, projectSchema } from "@/schemas/projects";
 import { eq, isNull, or } from "drizzle-orm";
 
@@ -19,7 +20,7 @@ export async function createProjectService(data: ProjectFormValues) {
   // STEP 1 | Authorization - can they perform this action?
   // Only admins may create projects.
   // PERMISSION:
-  if (user.role !== "admin") {
+  if (!can(user, "project:create")) {
     throw new AuthorizationError(
       "User does not have permission to create a project",
     );
@@ -50,7 +51,7 @@ export async function updateProjectService(
   // STEP 1 | Authorization - can they perform this action?
   // Only admins may update projects.
   // PERMISSION:
-  if (user.role !== "admin") {
+  if (!can(user, "project:update")) {
     throw new AuthorizationError(
       "User does not have permission to update a project",
     );
@@ -73,7 +74,8 @@ export async function deleteProjectService(projectId: string) {
 
   // STEP 1 | Authorization - can they perform this action?
   // Deleting is destructive, so it is restricted to admins.
-  if (user.role !== "admin") {
+  // PERMISSION:
+  if (!can(user, "project:delete")) {
     throw new AuthorizationError(
       "User does not have permission to delete a project",
     );
